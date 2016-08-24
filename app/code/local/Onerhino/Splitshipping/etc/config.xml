@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Onerhino_Slipshipping>
+            <version>0.1.0</version>
+        </Onerhino_Slipshipping>
+    </modules>
+    <global>
+        <models>
+            <onerhino_splitshipping>
+                <class>Onerhino_Splitshipping_Model</class>
+            </onerhino_splitshipping>
+        </models>
+        <helpers>
+            <onerhino_splitshipping>
+                <class>Onerhino_Splitshipping_Helper</class>
+            </onerhino_splitshipping>
+        </helpers>
+    </global>
+    <default>
+        <carriers>
+            <onerhino_splitshipping>
+                <active>1</active>
+                <sort_order>10</sort_order>
+                <model>onerhino_splitshipping/carrier</model>
+                <title>Split Shipping Method</title>
+                <sallowspecific>1</sallowspecific>
+                <express_max_weight>3</express_max_weight>
+            </onerhino_splitshipping>
+        </carriers>
+    </default>
+</config>

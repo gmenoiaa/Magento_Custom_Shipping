@@ -3,8 +3,8 @@
     <sections>
         <carriers>
             <groups>
-                <inchoo_shipping translate="label">
-                    <label>Inchoo Shipping Carrier</label>
+                <onerhino_splitshipping translate="label">
+                    <label>Split Shipping Method</label>
                     <sort_order>2</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>0</show_in_website>
@@ -57,7 +57,7 @@
                             <show_in_store>0</show_in_store>
                         </express_max_weight>
                     </fields>
-                </inchoo_shipping>
+                </onerhino_splitshipping>
             </groups>
         </carriers>
     </sections>

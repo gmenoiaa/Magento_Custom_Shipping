@@ -1,0 +1,11 @@
+{
+    "name": "onerhino/splitshipping",
+    "type": "magento-module",
+    "authors": [
+        {
+            "name": "Geiser Menoia",
+            "email": "gmenoiaa@gmail.com"
+        }
+    ],
+    "require": {}
+}

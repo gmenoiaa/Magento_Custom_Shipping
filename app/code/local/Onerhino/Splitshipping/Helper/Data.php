@@ -1,9 +1,8 @@
 <?php
 
-class Inchoo_Shipping_Helper_Data extends
-    Mage_Core_Helper_Abstract
+class Onerhino_Splishipping_Helper_Data extends Mage_Core_Helper_Abstract
 {
-    const XML_EXPRESS_MAX_WEIGHT = 'carriers/inchoo_shipping/express_max_weight';
+    const XML_EXPRESS_MAX_WEIGHT = 'carriers/onerhino_splitshipping/express_max_weight';
 
     /**
      * Get max weight of single item for express shipping

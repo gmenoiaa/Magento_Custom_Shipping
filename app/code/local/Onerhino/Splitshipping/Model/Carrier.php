@@ -1,15 +1,13 @@
 <?php
 
-class Inchoo_Shipping_Model_Carrier
-    extends Mage_Shipping_Model_Carrier_Abstract
-    implements Mage_Shipping_Model_Carrier_Interface
+class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_Abstract implements Mage_Shipping_Model_Carrier_Interface
 {
     /**
      * Carrier's code, as defined in parent class
      *
      * @var string
      */
-    protected $_code = 'inchoo_shipping';
+    protected $_code = 'onerhino_splitshipping';
 
     /**
      * Returns available shipping rates for Inchoo Shipping carrier
@@ -23,7 +21,7 @@ class Inchoo_Shipping_Model_Carrier
         $result = Mage::getModel('shipping/rate_result');
 
         /** @var Inchoo_Shipping_Helper_Data $expressMaxProducts */
-        $expressMaxWeight = Mage::helper('inchoo_shipping')->getExpressMaxWeight();
+        $expressMaxWeight = Mage::helper('onerhino_splitshipping')->getExpressMaxWeight();
 
         $expressAvailable = true;
         foreach ($request->getAllItems() as $item) {
