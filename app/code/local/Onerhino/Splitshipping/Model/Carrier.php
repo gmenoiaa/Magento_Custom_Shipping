@@ -2,18 +2,18 @@
 class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_Abstract implements Mage_Shipping_Model_Carrier_Interface {
 	
 	/**
+	 * Carrier's code, as defined in parent class
+	 *
+	 * @var string
+	 */
+	const CODE = 'onerhino_splitshipping';
+	
+	/**
 	 * Default carrier code, to use when no specific carrier is defined on a product.
 	 *
 	 * @var string
 	 */
 	protected $_default = 'ups';
-	
-	/**
-	 * Carrier's code, as defined in parent class
-	 *
-	 * @var string
-	 */
-	protected $_code = 'onerhino_splitshipping';
 	
 	/**
 	 * Collect carriers to use for shipping.
@@ -85,7 +85,7 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 			/** @var Mage_Shipping_Model_Rate_Result_Method $rate */
 			$rate = Mage::getModel ( 'shipping/rate_result_method' );
 			
-			$rate->setCarrier ( $this->_code );
+			$rate->setCarrier ( self::CODE );
 			$rate->setCarrierTitle ( $this->getConfigData ( 'title' ) );
 			$rate->setMethod ( implode ( '|', $methods ) );
 			$rate->setMethodTitle ( implode ( ' + ', $methodTitles ) );

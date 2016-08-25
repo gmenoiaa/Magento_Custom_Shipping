@@ -10,6 +10,11 @@
             <onerhino_splitshipping>
                 <class>Onerhino_Splitshipping_Model</class>
             </onerhino_splitshipping>
+            <shipping>
+                <rewrite>
+                    <shipping>Onerhino_Splitshipping_Model_Shipping_Shipping</shipping>
+                </rewrite>
+            </shipping>	
         </models>
         <helpers>
             <onerhino_splitshipping>
