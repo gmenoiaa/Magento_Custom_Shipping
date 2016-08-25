@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <config>
     <modules>
-        <Onerhino_SplitShipping>
+        <Onerhino_Splitshipping>
             <active>true</active>
             <codePool>local</codePool>
             <depends>
                 <Mage_Shipping />
             </depends>
-        </Onerhino_SplitShipping>
+        </Onerhino_Splitshipping>
     </modules>
 </config>

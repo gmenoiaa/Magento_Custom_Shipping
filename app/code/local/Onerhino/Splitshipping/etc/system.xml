@@ -47,15 +47,6 @@
                             <show_in_store>0</show_in_store>
                             <can_be_empty>1</can_be_empty>
                         </specificcountry>
-                        <express_max_weight translate="label">
-                            <label>Max product weight</label>
-                            <comment>Maximum weight of single product for express rate</comment>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>40</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </express_max_weight>
                     </fields>
                 </onerhino_splitshipping>
             </groups>
