@@ -47,6 +47,15 @@
                             <show_in_store>0</show_in_store>
                             <can_be_empty>1</can_be_empty>
                         </specificcountry>
+                        <default_carrier translate="label">
+                            <label>Default Carrier To Ship</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                        </default_carrier>
                     </fields>
                 </onerhino_splitshipping>
             </groups>

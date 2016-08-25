@@ -1,4 +1,10 @@
 <?php
+
+/**
+ * 
+ * @author geiser
+ *
+ */
 class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_Abstract implements Mage_Shipping_Model_Carrier_Interface {
 	
 	/**
@@ -7,13 +13,6 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 	 * @var string
 	 */
 	const CODE = 'onerhino_splitshipping';
-	
-	/**
-	 * Default carrier code, to use when no specific carrier is defined on a product.
-	 *
-	 * @var string
-	 */
-	protected $_default = 'ups';
 	
 	/**
 	 * Collect carriers to use for shipping.
@@ -25,6 +24,11 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 		$carriersToShip = array ();
 		$hasSpecific = false;
 		
+		// if the default carrier is not present, ignore
+		if (! ($defaultCarrier = Mage::helper ( 'onerhino_splitshipping' )->getDefaultCarrier ()) && ! $this->_isActiveShippingMethod ( $defaultCarrier )) {
+			return false;
+		}
+		
 		foreach ( $request->getAllItems () as $item ) {
 			
 			/** @var \Mage_Catalog_Model_Product $product */
@@ -34,7 +38,7 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 			if ($carrierToShip && $this->_isActiveShippingMethod ( $carrierToShip )) {
 				$hasSpecific = true;
 			} else {
-				$carrierToShip = $this->_default;
+				$carrierToShip = $defaultCarrier;
 			}
 			
 			if (! isset ( $carriersToShip [$carrierToShip] )) {
