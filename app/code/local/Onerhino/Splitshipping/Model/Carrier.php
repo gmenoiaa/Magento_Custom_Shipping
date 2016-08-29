@@ -93,7 +93,12 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 					$price += $rate->getPrice ();
 					$cost += $rate->getCost ();
 					$methods [] = "{$rate->getCarrier()}_{$rate->getMethod()}";
-					$methodTitles [] = "{$rate->getCarrierTitle()}-{$rate->getMethodTitle()}";
+					
+					//$formattedPrice = Mage::helper('core')->currency($rate->getPrice(), true, false);
+					$formattedPrice = '';
+					$formattedTitle = $this->_translateCarrier($rate->getCarrierTitle());
+					
+					$methodTitles [] = trim("$formattedTitle-{$rate->getMethodTitle()} $formattedPrice");
 				}
 				
 				/** @var Mage_Shipping_Model_Rate_Result_Method $rate */
@@ -106,7 +111,9 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 				$rate->setPrice ( $price );
 				$rate->setCost ( $cost );
 				
-				$result->append ( $rate );
+				if ($price) {
+					$result->append ( $rate );
+				}
 			}
 		}
 		
@@ -160,13 +167,13 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 		$requestToMake->setPackagePhysicalValue ( $orderSubtotal );
 		$requestToMake->setPackageQty ( $orderTotalQty );
 		
-		$carrierMethod = explode('_', $carrier);
+		$carrierMethod = explode ( '_', $carrier );
 		
 		/** @var \Mage_Shipping_Model_Shipping $shipping */
 		$shipping = Mage::getModel ( 'shipping/shipping' );
-		$shipping->collectCarrierRates ( $carrierMethod[0], $requestToMake );
+		$shipping->collectCarrierRates ( $carrierMethod [0], $requestToMake );
 		
-		return $shipping->getResult()->getAllRates();
+		return $shipping->getResult ()->getAllRates ();
 	}
 	
 	/**
@@ -265,5 +272,19 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 				$pos,
 				$globalCodes 
 		);
+	}
+	
+	/**
+	 * Translates a carrier to compressed one.
+	 * 
+	 * @param string $title        	
+	 */
+	protected function _translateCarrier($title) {
+		
+		$title = str_ireplace('united parcel service', 'UPS', $title);
+		$title = str_ireplace('federal express', 'FedEx', $title);
+		$title = str_ireplace('united states postal service', 'USPS', $title);
+		
+		return $title;
 	}
 }
