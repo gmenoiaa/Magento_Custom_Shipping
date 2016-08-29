@@ -34,17 +34,20 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 			/** @var \Mage_Catalog_Model_Product $product */
 			$product = Mage::getModel ( 'catalog/product' )->load ( $item->getProductId () );
 			
-			$carrierToShip = $product->getData ( 'carrier_to_ship' );
-			if ($carrierToShip && $this->_isActiveShippingMethod ( $carrierToShip )) {
-				$hasSpecific = true;
-			} else {
-				$carrierToShip = $defaultCarrier;
+			if (! $product->isConfigurable ()) {
+				
+				$carrierToShip = $product->getData ( 'carrier_to_ship' );
+				if ($carrierToShip && $this->_isActiveShippingMethod ( $carrierToShip )) {
+					$hasSpecific = true;
+				} else {
+					$carrierToShip = $defaultCarrier;
+				}
+				
+				if (! isset ( $carriersToShip [$carrierToShip] )) {
+					$carriersToShip [$carrierToShip] = array ();
+				}
+				$carriersToShip [$carrierToShip] [] = $product;
 			}
-			
-			if (! isset ( $carriersToShip [$carrierToShip] )) {
-				$carriersToShip [$carrierToShip] = array ();
-			}
-			$carriersToShip [$carrierToShip] [] = $product;
 		}
 		
 		if ($hasSpecific) {
@@ -67,36 +70,44 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 		
 		$carriersToShip = $this->_collectCarriersToShip ( $request );
 		if ($carriersToShip) {
-			
-			$price = 0;
-			$cost = 0;
-			$methodTitles = array ();
-			$methods = array ();
-			
+			$carrierRates = array ();
 			foreach ( $carriersToShip as $carrier => $products ) {
-				
 				/** @var \Mage_Shipping_Model_Rate_Result_Method $rate */
-				$rate = $this->_getAvailableCarrierRate ( $carrier, $request, $products );
-				
-				if ($rate) {
-					$price += $rate->getPrice ();
-					$cost += $rate->getCost ();
-					$methodTitles [] = "{$rate->getCarrierTitle()}-{$rate->getMethodTitle ()}";
-					$methods [] = "{$rate->getCarrier()}_{$rate->getMethod ()}";
+				$rates = $this->_getAvailableCarrierRate ( $carrier, $request, $products );
+				if ($rates) {
+					$carrierRates [] = $rates;
 				}
 			}
 			
-			/** @var Mage_Shipping_Model_Rate_Result_Method $rate */
-			$rate = Mage::getModel ( 'shipping/rate_result_method' );
+			list ( $nothing, $nothing2, $options ) = $this->_combineArrays ( $carrierRates );
 			
-			$rate->setCarrier ( self::CODE );
-			$rate->setCarrierTitle ( $this->getConfigData ( 'title' ) );
-			$rate->setMethod ( implode ( '|', $methods ) );
-			$rate->setMethodTitle ( implode ( ' + ', $methodTitles ) );
-			$rate->setPrice ( $price );
-			$rate->setCost ( $cost );
-			
-			$result->append ( $rate );
+			foreach ( $options as $option ) {
+				
+				$price = 0;
+				$cost = 0;
+				$methods = array ();
+				$methodTitles = array ();
+				
+				foreach ( $option as $rate ) {
+					
+					$price += $rate->getPrice ();
+					$cost += $rate->getCost ();
+					$methods [] = "{$rate->getCarrier()}_{$rate->getMethod()}";
+					$methodTitles [] = "{$rate->getCarrierTitle()}-{$rate->getMethodTitle()}";
+				}
+				
+				/** @var Mage_Shipping_Model_Rate_Result_Method $rate */
+				$rate = Mage::getModel ( 'shipping/rate_result_method' );
+				
+				$rate->setCarrier ( self::CODE );
+				$rate->setCarrierTitle ( $this->getConfigData ( 'title' ) );
+				$rate->setMethod ( implode ( '|', $methods ) );
+				$rate->setMethodTitle ( implode ( ' + ', $methodTitles ) );
+				$rate->setPrice ( $price );
+				$rate->setCost ( $cost );
+				
+				$result->append ( $rate );
+			}
 		}
 		
 		return $result;
@@ -116,7 +127,7 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 	 *
 	 * @param string $carrier        	
 	 * @param Mage_Shipping_Model_Rate_Request $request        	
-	 * @return Mage_Shipping_Model_Rate_Result_Method
+	 * @return array of Mage_Shipping_Model_Rate_Result_Method
 	 */
 	protected function _getAvailableCarrierRate($carrier, $request, $products) {
 		
@@ -149,13 +160,13 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 		$requestToMake->setPackagePhysicalValue ( $orderSubtotal );
 		$requestToMake->setPackageQty ( $orderTotalQty );
 		
+		$carrierMethod = explode('_', $carrier);
+		
 		/** @var \Mage_Shipping_Model_Shipping $shipping */
 		$shipping = Mage::getModel ( 'shipping/shipping' );
-		$shipping->collectCarrierRates ( $carrier, $requestToMake );
+		$shipping->collectCarrierRates ( $carrierMethod[0], $requestToMake );
 		
-		$rate = $shipping->getResult ()->getCheapestRate ();
-		
-		return $rate;
+		return $shipping->getResult()->getAllRates();
 	}
 	
 	/**
@@ -225,5 +236,34 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 			}
 		}
 		return false;
+	}
+	/**
+	 * Combines one array into all possibilites.
+	 *
+	 * @param arary $arr        	
+	 * @param array $codes        	
+	 * @param number $pos        	
+	 * @param array $globalCodes        	
+	 */
+	protected function _combineArrays($arr, $codes = array(), $pos = 0, $globalCodes = array()) {
+		if (count ( $arr )) {
+			for($i = 0; $i < count ( $arr [0] ); $i ++) {
+				$tmp = $arr;
+				$codes [$pos] = $arr [0] [$i];
+				$tarr = array_shift ( $tmp );
+				$pos ++;
+				list ( $codes, $pos, $globalCodes ) = $this->_combineArrays ( $tmp, $codes, $pos, $globalCodes );
+			}
+		} else {
+			$globalCodes [] = $codes;
+		}
+		
+		$pos --;
+		
+		return array (
+				$codes,
+				$pos,
+				$globalCodes 
+		);
 	}
 }
