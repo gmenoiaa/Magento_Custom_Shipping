@@ -98,7 +98,14 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 					$formattedPrice = '';
 					$formattedTitle = $this->_translateCarrier($rate->getCarrierTitle());
 					
-					$methodTitles [] = trim("$formattedTitle-{$rate->getMethodTitle()} $formattedPrice");
+					$productTypes = '';
+					if ($rate->getProductTypes ()) {
+						$productTypes .= '(';
+						$productTypes .= strtolower ( implode ( ",", $rate->getProductTypes () ) );
+						$productTypes .= ')';
+					}
+					
+					$methodTitles [] = trim("$formattedTitle-{$rate->getMethodTitle()} $productTypes");
 				}
 				
 				/** @var Mage_Shipping_Model_Rate_Result_Method $rate */
@@ -145,11 +152,13 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 		$orderSubtotal = 0;
 		$orderSubtotalWithDiscount = 0;
 		$allitems = array ();
+		$types = array();
 		/** @var \Mage_Sales_Model_Quote_Item $item */
 		foreach ( $request->getAllItems () as $item ) {
 			/** @var \Mage_Catalog_Model_Product $carrierProduct */
 			foreach ( $products as $carrierProduct ) {
 				if ($item->getProductId () == $carrierProduct->getId ()) {
+					$types [] = Mage::getModel ( 'eav/entity_attribute_set' )->load ( $item->getProduct()->getAttributeSetId () )->getAttributeSetName ();
 					$allitems [] = $item;
 					$orderSubtotal += $item->getBaseRowTotal ();
 					$orderTotalQty += $item->getQty ();
@@ -157,7 +166,7 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 				}
 			}
 		}
-		$requestToMake->setAllItems ( $allItems );
+		$requestToMake->setAllItems ( $allitems );
 		
 		$requestToMake->setOrderTotalQty ( $orderTotalQty );
 		$requestToMake->setOrderSubtotal ( $orderSubtotal );
@@ -173,7 +182,16 @@ class Onerhino_Splitshipping_Model_Carrier extends Mage_Shipping_Model_Carrier_A
 		$shipping = Mage::getModel ( 'shipping/shipping' );
 		$shipping->collectCarrierRates ( $carrierMethod [0], $requestToMake );
 		
-		return $shipping->getResult ()->getAllRates ();
+		$allRates = $shipping->getResult ()->getAllRates ();
+		$newAllRates = array();
+		$types = array_unique($types);
+		/** @var \Mage_Shipping_Model_Rate_Result_Abstract $rate */
+		foreach($allRates as $rate) {
+			$rate->setProductTypes($types);
+			$newAllRates[] = $rate;
+		}
+		return $newAllRates;
+		
 	}
 	
 	/**
